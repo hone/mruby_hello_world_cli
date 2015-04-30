@@ -8,9 +8,12 @@
 int main(void)
 {
   mrb_state *mrb = mrb_open();
-  char code[] = "p 'hello world!'";
-  printf("Executing Ruby code with mruby!\n");
+  mrbc_context *c;
+  mrb_value v;
+  FILE *mrb_file = fopen("mrblib/hello_world.rb", "r");
 
-  mrb_load_string(mrb, code);
+  c = mrbc_context_new(mrb);
+  mrb_load_file_cxt(mrb, mrb_file, c);
+  mrbc_context_free(mrb, c);
   return 0;
 }
