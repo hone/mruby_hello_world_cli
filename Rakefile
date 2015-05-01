@@ -3,6 +3,7 @@ APP_NAME=ENV["APP_NAME"] || "hello_world"
 APP_BIN_FILE="#{APP_ROOT}/bin/#{APP_NAME}"
 MRUBY_ROOT=ENV["MRUBY_ROOT"] || "#{APP_ROOT}/mruby"
 MRUBY_CONFIG=File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
+MRBC_BIN="#{MRUBY_ROOT}/build/host/bin/mrbc"
 TMP_DIR=ENV["APP_TMP_DIR"] || "#{APP_ROOT}/tmp"
 MRBC_FILE="#{TMP_DIR}/mrbc.c"
 INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
@@ -18,8 +19,11 @@ end
 desc "compile binary"
 task :compile => APP_BIN_FILE
 
-file MRBC_FILE => :mruby do
+file MRBC_BIN => :mruby do
   sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all"
+end
+
+file MRBC_FILE => MRBC_BIN do
   sh "mkdir -p #{APP_ROOT}/tmp"
   sh "#{MRUBY_ROOT}/build/host/bin/mrbc -Bhello_world -o#{MRBC_FILE} #{APP_ROOT}/mrblib/#{APP_NAME}.rb"
 end
