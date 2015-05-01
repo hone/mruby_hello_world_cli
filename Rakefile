@@ -3,7 +3,6 @@ APP_NAME=ENV["APP_NAME"] || "hello_world"
 APP_BIN_FILE="#{APP_ROOT}/bin/#{APP_NAME}"
 MRUBY_ROOT=ENV["MRUBY_ROOT"] || "#{APP_ROOT}/mruby"
 MRUBY_CONFIG=File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
-MRBC_BIN="#{MRUBY_ROOT}/build/host/bin/mrbc"
 TMP_DIR=ENV["APP_TMP_DIR"] || "#{APP_ROOT}/tmp"
 MRBC_FILE="#{TMP_DIR}/mrbc.c"
 INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
@@ -19,11 +18,8 @@ end
 desc "compile binary"
 task :compile => APP_BIN_FILE
 
-file MRBC_BIN => :mruby do
+file MRBC_FILE => [:mruby, "#{APP_ROOT}/src/#{APP_NAME}.c", "#{APP_ROOT}/mrblib/#{APP_NAME}.rb"] do
   sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all"
-end
-
-file MRBC_FILE => MRBC_BIN do
   sh "mkdir -p #{APP_ROOT}/tmp"
   sh "#{MRUBY_ROOT}/build/host/bin/mrbc -Bhello_world -o#{MRBC_FILE} #{APP_ROOT}/mrblib/#{APP_NAME}.rb"
 end
@@ -32,7 +28,7 @@ file APP_BIN_FILE => MRBC_FILE do
   src_contents = File.read("#{APP_ROOT}/src/#{APP_NAME}.c")
   tmp_contents = File.read(MRBC_FILE)
   tmp_src_file = "#{TMP_DIR}/#{APP_NAME}.c"
-  File.open(tmp_src_file, 'ab') do |file|
+  File.open(tmp_src_file, 'w') do |file|
     file.puts(tmp_contents)
     file.puts(src_contents)
   end
