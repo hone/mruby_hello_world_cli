@@ -23,5 +23,6 @@ int main(int argc, char *argv[])
   c = mrbc_context_new(mrb);
   mrb_load_irep_cxt(mrb, hello_world, c);
   mrbc_context_free(mrb, c);
+  mrb_close(mrb);
   return 0;
 }
