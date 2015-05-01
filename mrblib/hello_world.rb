@@ -1,6 +1,6 @@
 class HelloWorld
   def initialize(argv)
-    @argv
+    @argv = argv
   end
 
   def run
