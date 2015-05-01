@@ -1,6 +1,14 @@
-if ARGV.size > 1
-  arguments = ARGV[1..-1]
-  puts "hello #{arguments.join(" ")}"
-else
-  puts "hello world"
+class HelloWorld
+  def initialize(argv)
+    @argv = argv
+  end
+
+  def run
+    if @argv.size > 1
+      arguments = @argv[1..-1]
+      puts "hello #{arguments.join(" ")}"
+    else
+      puts "hello world"
+    end
+  end
 end

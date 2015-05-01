@@ -1,0 +1,1 @@
+HelloWorld.new(ARGV).run

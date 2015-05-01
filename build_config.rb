@@ -10,5 +10,5 @@ MRuby::Build.new do |conf|
   conf.gem :core => 'mruby-print'
 
   # be sure to include this gem
-  # conf.gem File.expand_path(File.dirname(__FILE__))
+  conf.gem File.expand_path(File.dirname(__FILE__))
 end
