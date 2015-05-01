@@ -6,11 +6,8 @@ MRuby::Build.new do |conf|
     toolchain :gcc
   end
 
-  enable_debug
-
-  conf.gembox 'default'
-
-  conf.gem :github => 'iij/mruby-io'
+  # conf.gembox 'default'
+  conf.gem :core => 'mruby-print'
 
   # be sure to include this gem
   # conf.gem File.expand_path(File.dirname(__FILE__))
