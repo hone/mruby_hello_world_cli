@@ -26,10 +26,20 @@ task :compile => :mruby do
   sh "gcc -Iinclude #{tmp_src_file} -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_ROOT}/bin/#{APP_BINARY}"
 end
 
-desc "test"
-task :test => :mruby do
-  sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all test"
+namespace :test do
+  desc "run mruby tests"
+  task :mrbtest => :mruby do
+    sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all test"
+  end
+
+  desc "run app tests"
+  task :app => :compile do
+    sh "cd #{MRUBY_ROOT} && ruby #{MRUBY_ROOT}/test/bintest.rb #{APP_ROOT}"
+  end
 end
+
+desc "run all tests"
+task :test => ["test:mrbtest", "test:app"]
 
 desc "install"
 task :install => :compile do
