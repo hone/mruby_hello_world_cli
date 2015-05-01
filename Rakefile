@@ -19,22 +19,9 @@ end
 desc "compile binary"
 task :compile => APP_BIN_FILE
 
-file MRBC_FILE => [:mruby, "#{APP_ROOT}/build_config.rb", "#{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.c"] + MRUBY_FILES do
-  sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all"
-  sh "mkdir -p #{APP_ROOT}/tmp"
-  sh "#{MRUBY_ROOT}/build/host/bin/mrbc -B#{APP_NAME} -o#{MRBC_FILE} #{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.rb"
-end
-
-file APP_BIN_FILE => MRBC_FILE do
-  src_contents = File.read("#{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.c")
-  tmp_contents = File.read(MRBC_FILE)
-  tmp_src_file = "#{TMP_DIR}/#{APP_NAME}.c"
-  File.open(tmp_src_file, 'w') do |file|
-    file.puts(tmp_contents)
-    file.puts(src_contents)
-  end
+file APP_BIN_FILE do
   sh "mkdir -p #{APP_ROOT}/bin"
-  sh "gcc -Iinclude #{tmp_src_file} -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_BIN_FILE}"
+  sh "gcc -Iinclude #{APP_ROOT}/tools/wrapper.c -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_BIN_FILE}"
 end
 
 namespace :test do

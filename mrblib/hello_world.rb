@@ -12,3 +12,7 @@ class HelloWorld
     end
   end
 end
+
+def __main__(argv)
+  HelloWorld.new(argv).run
+end
