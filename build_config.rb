@@ -13,5 +13,5 @@ MRuby::Build.new do |conf|
   conf.gem :github => 'iij/mruby-io'
 
   # be sure to include this gem
-  conf.gem File.expand_path(File.dirname(__FILE__))
+  # conf.gem File.expand_path(File.dirname(__FILE__))
 end

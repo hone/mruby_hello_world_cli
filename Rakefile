@@ -2,6 +2,7 @@ APP_ROOT=ENV["APP_ROOT"] || Dir.pwd
 APP_BINARY=ENV["APP_BINARY"] || "hello_world"
 MRUBY_ROOT=ENV["MRUBY_ROOT"] || "#{APP_ROOT}/mruby"
 MRUBY_CONFIG=File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
+TMP_DIR=ENV["APP_TMP_DIR"] || "#{APP_ROOT}/tmp"
 INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
 MRUBY_VERSION=ENV["MRUBY_VERSION"] || "1.1.0"
 
@@ -14,9 +15,15 @@ end
 
 desc "compile binary"
 task :compile => :mruby do
+  tmp_src_file = "#{TMP_DIR}/#{APP_BINARY}.c"
   sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all"
   sh "mkdir -p #{APP_ROOT}/bin"
-  sh "gcc -Iinclude #{APP_ROOT}/src/#{APP_BINARY}.c -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_ROOT}/bin/#{APP_BINARY}"
+  sh "#{MRUBY_ROOT}/build/host/bin/mrbc -Bhello_world -o#{tmp_src_file} #{APP_ROOT}/mrblib/#{APP_BINARY}.rb"
+  src_contents = File.read("#{APP_ROOT}/src/#{APP_BINARY}.c")
+  File.open(tmp_src_file, 'ab') do |file|
+    file.puts(src_contents)
+  end
+  sh "gcc -Iinclude #{tmp_src_file} -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_ROOT}/bin/#{APP_BINARY}"
 end
 
 desc "test"
@@ -33,6 +40,7 @@ end
 desc "cleanup"
 task :clean do
   sh "rm #{APP_ROOT}/bin/#{APP_BINARY}"
+  sh "rm #{TMP_DIR}/*"
   sh "cd #{MRUBY_ROOT} && rake deep_clean"
 end
 

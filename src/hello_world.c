@@ -3,17 +3,16 @@
 
 /* Include the mruby header */
 #include <mruby.h>
-#include <mruby/compile.h>
+#include <mruby/irep.h>
 
 int main(void)
 {
   mrb_state *mrb = mrb_open();
   mrbc_context *c;
   mrb_value v;
-  FILE *mrb_file = fopen("mrblib/hello_world.rb", "r");
 
   c = mrbc_context_new(mrb);
-  mrb_load_file_cxt(mrb, mrb_file, c);
+  mrb_load_irep_cxt(mrb, hello_world, c);
   mrbc_context_free(mrb, c);
   return 0;
 }
