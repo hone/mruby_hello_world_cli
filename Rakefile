@@ -1,6 +1,7 @@
+require 'fileutils'
+
 APP_ROOT=ENV["APP_ROOT"] || Dir.pwd
 APP_NAME=ENV["APP_NAME"] || "hello_world"
-APP_BIN_FILE="#{APP_ROOT}/bin/#{APP_NAME}"
 MRUBY_ROOT=ENV["MRUBY_ROOT"] || "#{APP_ROOT}/mruby"
 MRUBY_FILES=Dir.glob("#{APP_ROOT}/mrblib/*")
 MRUBY_CONFIG=File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
@@ -8,6 +9,23 @@ TMP_DIR=ENV["APP_TMP_DIR"] || "#{APP_ROOT}/tmp"
 MRBC_FILE="#{TMP_DIR}/mrbc.c"
 INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
 MRUBY_VERSION=ENV["MRUBY_VERSION"] || "1.1.0"
+
+def bin_path(arch)
+  "#{APP_ROOT}/bin/#{arch}/#{APP_NAME}"
+end
+
+ARCH_HASH=Hash[{
+  "host" => {
+    linker: "gcc"
+  },
+  "x86_64-apple-darwin14" => {
+    linker: "x86_64-apple-darwin14-gcc"
+  }
+}.to_a.map {|entry|
+  arch, value = entry
+  value[:bin_path] = bin_path(arch)
+  [arch, value]
+}]
 
 file :mruby do
   sh "wget --no-check-certificate -O mruby.tar.gz https://github.com/mruby/mruby/archive/#{MRUBY_VERSION}.tar.gz"
@@ -17,24 +35,31 @@ file :mruby do
 end
 
 desc "compile binary"
-task :compile => APP_BIN_FILE
+task :compile => ARCH_HASH.values.map {|v| v[:bin_path] }
 
 file MRBC_FILE => [:mruby, "#{APP_ROOT}/build_config.rb", "#{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.c"] + MRUBY_FILES do
   sh "cd #{MRUBY_ROOT} && MRUBY_CONFIG=#{MRUBY_CONFIG} rake all"
   sh "mkdir -p #{APP_ROOT}/tmp"
+
   sh "#{MRUBY_ROOT}/build/host/bin/mrbc -B#{APP_NAME} -o#{MRBC_FILE} #{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.rb"
 end
 
-file APP_BIN_FILE => MRBC_FILE do
-  src_contents = File.read("#{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.c")
-  tmp_contents = File.read(MRBC_FILE)
-  tmp_src_file = "#{TMP_DIR}/#{APP_NAME}.c"
-  File.open(tmp_src_file, 'w') do |file|
-    file.puts(tmp_contents)
-    file.puts(src_contents)
+
+ARCH_HASH.each do |arch, value|
+  bin_file       = value[:bin_path]
+  arch_mrbc_file = value[:c_path]
+
+  file bin_file => MRBC_FILE do
+    src_contents = File.read("#{APP_ROOT}/tools/#{APP_NAME}/#{APP_NAME}.c")
+    tmp_contents = File.read(MRBC_FILE)
+    tmp_src_file = "#{TMP_DIR}/#{APP_NAME}.c"
+    File.open(tmp_src_file, 'w') do |file|
+      file.puts(tmp_contents)
+      file.puts(src_contents)
+    end
+    FileUtils.mkdir_p(File.dirname(bin_file))
+    sh "#{value[:linker]} -Iinclude #{tmp_src_file} -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/#{arch}/lib/libmruby.a -lm -o #{bin_file}"
   end
-  sh "mkdir -p #{APP_ROOT}/bin"
-  sh "gcc -Iinclude #{tmp_src_file} -I#{MRUBY_ROOT}/include/ #{MRUBY_ROOT}/build/host/lib/libmruby.a -lm -o #{APP_BIN_FILE}"
 end
 
 namespace :test do
@@ -60,8 +85,8 @@ end
 
 desc "cleanup"
 task :clean do
-  sh "rm #{APP_ROOT}/bin/#{APP_NAME}"
-  sh "rm #{TMP_DIR}/*"
+  sh "rm -rf #{APP_ROOT}/bin/*"
+  sh "rm -rf #{TMP_DIR}/*"
   sh "cd #{MRUBY_ROOT} && rake deep_clean"
 end
 
