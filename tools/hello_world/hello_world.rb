@@ -1,1 +1,0 @@
-HelloWorld.new(ARGV).run
