@@ -16,9 +16,9 @@ end
 MRuby::CrossBuild.new('x86_64-apple-darwin14') do |conf|
   toolchain :gcc
 
-  conf.cc.command = 'x86_64-apple-darwin14-gcc'
-  conf.cxx.command = 'x86_64-apple-darwin14-g++'
-  conf.linker.command = 'x86_64-apple-darwin14-gcc'
+  conf.cc.command       = 'x86_64-apple-darwin14-gcc'
+  conf.cxx.command      = 'x86_64-apple-darwin14-g++'
+  conf.linker.command   = 'x86_64-apple-darwin14-gcc'
   conf.archiver.command = 'x86_64-apple-darwin14-ar'
 
   conf.bins = []
