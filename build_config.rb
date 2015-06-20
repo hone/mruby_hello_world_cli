@@ -24,3 +24,16 @@ MRuby::CrossBuild.new('x86_64-apple-darwin14') do |conf|
   conf.bins = []
   gem_config(conf)
 end
+
+MRuby::CrossBuild.new('mingw-w64') do |conf|
+  toolchain :gcc
+
+  conf.cc.command       = 'x86_64-w64-mingw32-gcc'
+  conf.cxx.command      = 'x86_64-w64-mingw32-cpp'
+  conf.linker.command   = 'x86_64-w64-mingw32-gcc'
+  conf.archiver.command = 'x86_64-w64-mingw32-gcc-ar'
+
+  conf.exts.executable = ".exe"
+  conf.bins = []
+  gem_config(conf)
+end

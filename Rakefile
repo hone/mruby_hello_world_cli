@@ -20,6 +20,9 @@ ARCH_HASH=Hash[{
   },
   "x86_64-apple-darwin14" => {
     linker: "x86_64-apple-darwin14-gcc"
+  },
+  "mingw-w64" => {
+    linker: "x86_64-w64-mingw32-gcc"
   }
 }.to_a.map {|entry|
   arch, value = entry
