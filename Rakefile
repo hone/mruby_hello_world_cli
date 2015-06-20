@@ -11,7 +11,7 @@ INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
 MRUBY_VERSION=ENV["MRUBY_VERSION"] || "1.1.0"
 
 def bin_path(arch)
-  "#{APP_ROOT}/bin/#{arch}/#{APP_NAME}"
+  "#{APP_ROOT}/target/#{arch}/#{APP_NAME}"
 end
 
 ARCH_HASH=Hash[{
@@ -80,12 +80,12 @@ task :test => ["test:mrbtest", "test:app"]
 desc "install"
 task :install => :compile do
   sh "mkdir -p #{INSTALL_PREFIX}/bin"
-  sh "cp -p #{APP_ROOT}/bin/#{APP_NAME} #{INSTALL_PREFIX}/bin/."
+  sh "cp -p #{APP_ROOT}/target/host/#{APP_NAME} #{INSTALL_PREFIX}/bin/."
 end
 
 desc "cleanup"
 task :clean do
-  sh "rm -rf #{APP_ROOT}/bin/*"
+  sh "rm -rf #{APP_ROOT}/target/*"
   sh "rm -rf #{TMP_DIR}/*"
   sh "cd #{MRUBY_ROOT} && rake deep_clean"
 end
