@@ -6,6 +6,50 @@ MRUBY_CONFIG=File.expand_path(ENV["MRUBY_CONFIG"] || "build_config.rb")
 INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
 MRUBY_VERSION=ENV["MRUBY_VERSION"] || "1.1.0"
 
+def uid
+  @uid ||= `id -u`.chomp
+end
+
+def gid
+  @gid ||= `id -g`.chomp
+end
+
+file "Dockerfile" do
+  File.open('Dockerfile', 'w') do |file|
+    file.puts <<DOCKERFILE
+FROM hone/mruby-cli
+
+# setup user account based off host uid/gid
+RUN groupadd -g #{gid} -r mruby && useradd -u #{uid} -g mruby mruby
+USER mruby
+DOCKERFILE
+  end
+end
+
+file 'docker-compose.yml' do
+  File.open('docker-compose.yml', 'w') do |file|
+    file.puts <<DOCKER_COMPOSE_YML
+compile: &defaults
+  build: .
+  volumes:
+    - .:/home/mruby/code:rw
+  command: rake compile
+  user: #{uid}
+clean:
+  <<: *defaults
+  command: rake clean
+shell:
+  <<: *defaults
+  command: bash
+DOCKER_COMPOSE_YML
+  end
+end
+
+desc "Setup Docker for building things locally"
+task :setup => ["Dockerfile", "docker-compose.yml"] do
+  sh "docker-compose build"
+end
+
 file :mruby do
   sh "git clone https://github.com/mruby/mruby"
 end
