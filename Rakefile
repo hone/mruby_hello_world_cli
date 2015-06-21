@@ -7,10 +7,7 @@ INSTALL_PREFIX=ENV["INSTALL_PREFIX"] || "#{APP_ROOT}/build"
 MRUBY_VERSION=ENV["MRUBY_VERSION"] || "1.1.0"
 
 file :mruby do
-  sh "wget --no-check-certificate -O mruby.tar.gz https://github.com/mruby/mruby/archive/#{MRUBY_VERSION}.tar.gz"
-  sh "tar -xvzf mruby.tar.gz"
-  sh "rm mruby.tar.gz"
-  sh "mv mruby-#{MRUBY_VERSION} #{MRUBY_ROOT}"
+  sh "git clone https://github.com/mruby/mruby"
 end
 
 desc "compile binary"
