@@ -1,5 +1,4 @@
 mruby/
 bin/
-tmp/
 Dockerfile
 docker-compose.yml
