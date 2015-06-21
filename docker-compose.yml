@@ -1,0 +1,12 @@
+compile: &defaults
+  build: .
+  volumes:
+    - .:/home/mruby/code:rw
+  command: rake compile
+  user: 1000
+clean:
+  <<: *defaults
+  command: rake clean
+shell:
+  <<: *defaults
+  command: bash
