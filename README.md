@@ -1,21 +1,37 @@
 # mruby Hello World CLI
 This is an example of how to build a single file CLI binary using mruby.
 
+## Setup
+You'll need [`docker`](https://docs.docker.com/installation/) and [`docker-compose`](https://docs.docker.com/compose/install/) installed. Run `rake setup` to build a `Dockerfile` and `docker-compose.yml` locally. This container includes all the tools needed to compile mruby on linux (host), OSX (darwin14), and Windows (mingw-w64). We mount the current code directory inside the container as `/home/mruby/code`. Any changes in that directory persist locally.
+
 ## Compiling
-To compile just run the compile rake task.
+To compile just run the `docker-compose` task.
 
 ```sh
-$ rake compile
+$ docker-compose run compile
 ```
 
 ## Running the app
 After the app is built, you can execute it.
 
 ```sh
-$ bin/hello_world
+$ mruby/bin/hello_world
 hello world
-$ bin/hello_world chancancode
+$ mruby/bin/hello_world chancancode
 hello chancancode
+```
+
+The other platform binaries will be located in `mruby/build/`.
+
+* Linux: `mruby/build/host/bin/hello_world`
+* OS X: `mruby/build/x86_64-apple-darwin14/bin/hello_world`
+* Windows: `mruby/build/mingw-w64/bin/hello_world`
+
+## Debugging
+You can run a shell in the docker container to do any debugging you need.
+
+```sh
+$ docker-compose run shell
 ```
 
 ## Testing
