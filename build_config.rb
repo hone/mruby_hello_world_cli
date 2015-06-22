@@ -1,6 +1,5 @@
 def gem_config(conf)
   # conf.gembox 'default'
-  conf.gem :core => 'mruby-print'
 
   # be sure to include this gem
   conf.gem File.expand_path(File.dirname(__FILE__))
