@@ -20,7 +20,7 @@ file "Dockerfile" do
 FROM hone/mruby-cli
 
 # setup user account based off host uid/gid
-RUN groupadd -g #{gid} -r mruby && useradd -u #{uid} -g mruby mruby
+RUN groupadd -g #{gid} -r mruby && useradd -u #{uid} -l -g mruby mruby
 USER mruby
 DOCKERFILE
   end
